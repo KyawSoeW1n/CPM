@@ -1,7 +1,6 @@
 package code;
 
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -11,13 +10,14 @@ import java.util.Set;
 
 import code.Output;
 import code.CPM.Task;
+
 public class CPM {
     public static int maxCost;
     public static String format = "%1$-10s %2$-5s %3$-5s %4$-5s %5$-5s %6$-5s %7$-10s\n";
 
     public static void main(String[] args) {
 
-    	
+
         HashSet<Task> allTasks = new HashSet<Task>();
         Task end = new Task("End", 0);
         Task F = new Task("F", 2, end);
@@ -52,19 +52,19 @@ public class CPM {
         public int latestFinish;
         // the tasks on which this task is dependant
         public HashSet<Task> dependencies = new HashSet<Task>();
-        
+
         public Task(String name, int cost, Task... dependencies) {
             this.name = name;
             this.cost = cost;
-         //  output.setText(name+cost+dependencies.length);
+            //  output.setText(name+cost+dependencies.length);
             for (Task t : dependencies) {
                 this.dependencies.add(t);
             }
             this.earlyFinish = -1;
-            
-           
+
+
             //for(Task t:dependencies)
-            	//output.setText(t.name+",");
+            //output.setText(t.name+",");
             //output.setText();
         }
 
@@ -75,32 +75,28 @@ public class CPM {
 
         public String[] toStringArray() {
             String criticalCond = earlyStart == latestStart ? "Yes" : "No";
-            String[] toString = { name, earlyStart + "", earlyFinish + "", latestStart + "", latestFinish + "",
-                    latestStart - earlyStart + "", criticalCond };
+            String[] toString = {name, earlyStart + "", earlyFinish + "", latestStart + "", latestFinish + "",
+                    latestStart - earlyStart + "", criticalCond};
             return toString;
-        
-        }
-        
-        private  String testCritical()
-        {
-        	String temp=null;
-        	//System.out.println("\n  Critical path:");
-        	
-        		if(earlyStart==latestStart)
-               	{
-               			if(name!="Start"|| name!="End")
-               			{
-               				temp =name;
-               				return temp;
-               			}
-               	}
-        	
-        	return null;
-    	}
-        
 
-        public boolean isDependent(Task t) 
-        {
+        }
+
+        private String testCritical() {
+            String temp = null;
+            //System.out.println("\n  Critical path:");
+
+            if (earlyStart == latestStart) {
+                if (name != "Start" || name != "End") {
+                    temp = name;
+                    return temp;
+                }
+            }
+
+            return null;
+        }
+
+
+        public boolean isDependent(Task t) {
             // is t a direct dependency?
             if (dependencies.contains(t)) {
                 return true;
@@ -116,20 +112,20 @@ public class CPM {
     }
 
     public static Task[] criticalPath(Set<Task> tasks) {
-    	
-    	
+
+
         HashSet<Task> cc = new HashSet<Task>();
-        HashSet<Task> noncc= new HashSet<Task>();
-         
+        HashSet<Task> noncc = new HashSet<Task>();
+
         HashSet<Task> completed = new HashSet<Task>();
-        
+
         HashSet<Task> remaining = new HashSet<Task>(tasks);
-    
+
         while (!remaining.isEmpty()) {
             boolean progress = false;
 
             // find a new task to calculate
-            for (Iterator<Task> it = remaining.iterator(); it.hasNext();) {
+            for (Iterator<Task> it = remaining.iterator(); it.hasNext(); ) {
                 Task task = it.next();
                 if (completed.containsAll(task.dependencies)) {
                     int critical = 0;
@@ -139,10 +135,10 @@ public class CPM {
                         }
                     }
                     task.criticalCost = critical + task.cost;
-     
+
                     completed.add(task);
                     it.remove();
-   
+
                     progress = true;
                 }
             }
@@ -152,8 +148,8 @@ public class CPM {
         }
 
 
-        int max=maxCost(tasks);
-    
+        int max = maxCost(tasks);
+
         HashSet<Task> initialNodes = initials(tasks);
         calculateEarly(initialNodes);
 
@@ -165,10 +161,10 @@ public class CPM {
                 return o1.name.compareTo(o2.name);
             }
         });
-              
-        
-               return ret;
-          
+
+
+        return ret;
+
     }
 
     public static void calculateEarly(HashSet<Task> initials) {
@@ -208,77 +204,67 @@ public class CPM {
                 max = t.criticalCost;
         }
         maxCost = max;
-   
+
         for (Task t : tasks) {
             t.setLatest();
         }
         return maxCost;
     }
 
-    public static void print(Task[] tasks)
-    {
-    
-    	
-    	 Output.setText("Duration: " + maxCost);
+    public static void print(Task[] tasks) {
 
-    	Output.setText("Task"+"\tES"+"\tEF"+"\tLS"+"\tLF"+"\tSlack"+"\tCritical\n");
-        for (Task t : tasks)
-        {
-        	String arr[]= t.toStringArray();
-        	String temp="";
-        	for(int i=0;i<arr.length;i++)
-          	{	
-        		if(arr[i]=="Start" || arr[i]=="End")
-        		{
-        			break;
-        		}
-        		temp+=arr[i]+"\t";
-        		
-        	}
-        
-        	
-        	Output.setText(temp);
-        }        	
-        
+
+        Output.setText("Duration: " + maxCost);
+
+        Output.setText("Task" + "\tES" + "\tEF" + "\tLS" + "\tLF" + "\tSlack" + "\tCritical\n");
+        for (Task t : tasks) {
+            String arr[] = t.toStringArray();
+            String temp = "";
+            for (int i = 0; i < arr.length; i++) {
+                if (arr[i] == "Start" || arr[i] == "End") {
+                    break;
+                }
+                temp += arr[i] + "\t";
+
+            }
+
+
+            Output.setText(temp);
+        }
+
     }
 
-    public static String printCritical(Task[] tasks)
-    {
-     	String temp="";
-    	String end="";
-    	String c;
-    	ArrayList<String> tempc=new ArrayList<String>(); 
-    	
-    	
-    	for(Task t:tasks)
-    	{
-    		c=t.testCritical();
-    		if(c!=null)
-    		{
-    			tempc.add(c);
-    		}
-    	}
-    	int count=tempc.size();
-    	String[] critical=new String[count];
-    	
-    	for(int i=0;i<count;i++)
-    	{
-    		critical[i]=tempc.get(i);
-    	}
+    public static String printCritical(Task[] tasks) {
+        String temp = "";
+        String end = "";
+        String c;
+        ArrayList<String> tempc = new ArrayList<String>();
 
-    	
-    	for(int i=0;i<count;i++)
-    	{
-    		if(critical[i].equals("Start") || critical[i].equals("End"))
-    			{temp+="";}
-    		else
-    		{
-    			temp+=critical[i]+"-";
-    		}
-    	}
-    	return temp;
-    	
-     }
+
+        for (Task t : tasks) {
+            c = t.testCritical();
+            if (c != null) {
+                tempc.add(c);
+            }
+        }
+        int count = tempc.size();
+        String[] critical = new String[count];
+
+        for (int i = 0; i < count; i++) {
+            critical[i] = tempc.get(i);
+        }
+
+
+        for (int i = 0; i < count; i++) {
+            if (critical[i].equals("Start") || critical[i].equals("End")) {
+                temp += "";
+            } else {
+                temp += critical[i] + "-";
+            }
+        }
+        return temp;
+
+    }
 }
 
 
